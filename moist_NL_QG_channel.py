@@ -36,18 +36,11 @@ y = np.linspace( -Ly / 2, Ly / 2, N2 )
 kk = np.fft.rfftfreq( N, Lx / float(N) / 2. / np.pi ) #zonal wavenumbers
 ll = np.fft.fftfreq( N2, Ly / float(N2) / 2. / np.pi ) #meridional wavenumbers
 
+Lapl = -(np.expand_dims(ll, 1) ** 2 + np.expand_dims(kk, 0) ** 2)
+
 C = 2. #linearized Clausius-Clapeyron parameter
 L = .2 #non-dimensional measure of the strength of latent heating
 Er = 1. #Evaporation rate
-
-x = np.linspace( -Lx / 2, Lx / 2, N )
-y = np.linspace( -Ly / 2, Ly / 2, N2 )
-
-#Wavenumbers:
-kk = np.fft.rfftfreq( N, Lx / float(N) / 2. / np.pi ) #zonal wavenumbers
-ll = np.fft.fftfreq( N2, Ly / float(N2) / 2. / np.pi ) #meridional wavenumbers
-
-Lapl = -(np.expand_dims(ll, 1) ** 2 + np.expand_dims(kk, 0) ** 2)
 
 tot_time = 750 #Length of run
 dt = 0.025 #Timestep
@@ -236,8 +229,6 @@ def filt(var, ovar, nvar, g):
 #######################################################
 #  Main time-stepping loop
 
-print("Timestep:", 0)
-
 forc1 = np.zeros( ( N2, N ) )
 forc2 = np.zeros( ( N2, N ) )
 cforc1 = np.zeros( ( N2, N // 2 + 1 ) ).astype(complex)
@@ -333,7 +324,7 @@ for i in range( 1, ts ):
         qc_1[2, :] = lf(qc_1[0, :, :], rhs1[:], dt, nu, kk, ll)
         qc_2[2, :] = lf(qc_2[0, :, :], rhs2[:], dt, nu, kk, ll)
 
-    #Follow Bembenak et al for divergence
+    #Calculate divergence
     psi_bc = psic_1[1] - psic_2[1]
     psi_bt = psic_1[1] + psic_2[1]
     Lapl_bc = Laplace( psi_bc, kk, ll )
@@ -398,7 +389,3 @@ def sdat(c, F):
         return 0
 
 sdat( pv, "data/moist_PV1.dat" )
-
-
-
-
